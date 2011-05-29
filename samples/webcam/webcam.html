@@ -1,0 +1,124 @@
+<html>
+
+<head>
+  <title>Detección de marcadores</title>
+
+  <script type="text/javascript" src="cv.js"></script> 
+  <script type="text/javascript" src="aruco.js"></script> 
+
+  <script>
+    var camera, canvas, context, imageData, detector;
+
+    function cameraUnmuted(){
+      camera = document.getElementById("flashcam");
+      canvas = document.getElementById("canvas");
+      context = canvas.getContext("2d");
+      imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      detector = new AR.Detector();
+
+      camera.style.visibility = "hidden";
+      canvas.style.display = "block";
+
+      setTimeout("tick()", 1);
+    }
+
+    function tick(){
+      snapshot();
+      
+      var markers = detector.detect(imageData);
+      drawCorners(markers);
+      drawId(markers);
+
+      setTimeout("tick()", 50);
+    }
+
+    function snapshot(){
+      var snapshot = camera.snapshot(), i = 0, j = 0;
+
+      while(i !== snapshot.length){
+        imageData.data[j ++] = snapshot[i ++];
+        imageData.data[j ++] = snapshot[i ++];
+        imageData.data[j ++] = snapshot[i ++];
+        imageData.data[j ++] = snapshot[i ++];
+      }
+      
+      context.putImageData(imageData, 0, 0);
+    }
+          
+    function drawCorners(markers){
+      var corners, corner, i, j;
+    
+      context.lineWidth = 3;
+
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        context.strokeStyle = "red";
+        context.beginPath();
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          context.moveTo(corner.x, corner.y);
+          corner = corners[(j + 1) % corners.length];
+          context.lineTo(corner.x, corner.y);
+        }
+
+        context.stroke();
+        context.closePath();
+        
+        context.strokeStyle = "green";
+        context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+      }
+    }
+
+    function drawId(markers){
+      var corners, corner, x, y, i, j;
+      
+      context.strokeStyle = "blue";
+      context.lineWidth = 1;
+      
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        x = Infinity;
+        y = Infinity;
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          
+          x = Math.min(x, corner.x);
+          y = Math.min(y, corner.y);
+        }
+
+        context.strokeText(markers[i].id, x, y)
+      }
+    }
+
+ </script>
+
+</head>
+
+<body>
+
+  <center>
+    <canvas id="canvas" width="320px" height="240px" style="display:none"></canvas>
+    <object id="flash"
+            width="320" height="240"
+            classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+            codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">
+      <param name="movie" value="flashcam.swf"/>
+      <param name="quality" value="high"/>
+      <param name="allowScriptAccess" value="always"/>
+      <embed id="flashcam"
+             src="flashcam.swf"
+             width="320" height="240"
+             quality="high" 
+             allowScriptAccess="always" 
+             type="application/x-shockwave-flash"
+             pluginspage="http://www.macromedia.com/go/getflashplayer"/>
+    </object>
+  </center>
+
+</body>
+  
+</html>
