@@ -7,19 +7,23 @@ AR.Marker = function(id, corners){
 };
 
 AR.Detector = function(){
+  this.grey = new CV.Image();
+  this.thres = new CV.Image();
+  this.mean = new CV.Image();
+  this.homography = new CV.Image();
 };
 
 AR.Detector.prototype.detect = function(image){
-  var grey = CV.grayscale(image);
-  var thres = CV.adaptiveThreshold(grey, 7, 7);
+  CV.grayscale(image, this.grey);
+  CV.adaptiveThreshold(this.grey, this.thres, this.mean, 7, 7);
   
-  var contours = CV.findContours(thres);
+  var contours = CV.findContours(this.thres);
 
   var candidates = this.findCandidates(contours, image.width * 0.20, 0.05, 10);
   candidates = this.clockwiseCorners(candidates);
   candidates = this.notTooNear(candidates, 10);
 
-  return this.findMarkers(grey, candidates, 49);
+  return this.findMarkers(this.grey, candidates, 49);
 };
 
 AR.Detector.prototype.findCandidates = function(contours, minSize, epsilon, minLength){
@@ -98,16 +102,16 @@ AR.Detector.prototype.notTooNear = function(candidates, minDist){
 };
 
 AR.Detector.prototype.findMarkers = function(imageSrc, candidates, warpSize){
-  var markers = [], candidate, homography, thres, marker, i;
+  var markers = [], candidate, marker, i;
 
   for (i = 0; i !== candidates.length; ++ i){
     candidate = candidates[i];
   
-    homography = CV.warp(imageSrc, candidate, warpSize);
+    CV.warp(imageSrc, this.homography, candidate, warpSize);
   
-    thres = CV.threshold(homography, CV.otsu(homography) );
+    CV.threshold(this.homography, this.homography, CV.otsu(this.homography) );
     
-    marker = this.getMarker(thres, candidate);
+    marker = this.getMarker(this.homography, candidate);
     if (marker){
       markers.push(marker);
     }
