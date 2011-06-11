@@ -7,41 +7,48 @@
   <script type="text/javascript" src="aruco.js"></script> 
 
   <script>
-    var camera, canvas, context, imageData, detector;
+    var camera, canvas, context, imageData, pixels, detector;
 
     function cameraUnmuted(){
       camera = document.getElementById("flashcam");
       canvas = document.getElementById("canvas");
       context = canvas.getContext("2d");
       imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      pixels = [];
       detector = new AR.Detector();
 
       camera.style.visibility = "hidden";
       canvas.style.display = "block";
 
-      setTimeout("tick()", 1);
+      setTimeout(tick, 1);
     }
 
     function tick(){
       snapshot();
-      
+
       var markers = detector.detect(imageData);
       drawCorners(markers);
       drawId(markers);
 
-      setTimeout("tick()", 50);
+      setTimeout(tick, 1);
     }
 
     function snapshot(){
-      var snapshot = camera.snapshot(), i = 0, j = 0;
+      var image = imageData.data,
+          i = 0, j = 0, curr = 0, len;
 
-      while(i !== snapshot.length){
-        imageData.data[j ++] = snapshot[i ++];
-        imageData.data[j ++] = snapshot[i ++];
-        imageData.data[j ++] = snapshot[i ++];
-        imageData.data[j ++] = snapshot[i ++];
+      pixels = camera.snapshot().split(",");
+
+      len = pixels.length - 1;
+      while(len --){
+        curr += parseInt( pixels[j ++], 36);
+
+        image[i ++] = curr >> 16;
+        image[i ++] = (curr >> 8) & 0xff;
+        image[i ++] = curr & 0xff;
+        image[i ++] = 255;
       }
-      
+
       context.putImageData(imageData, 0, 0);
     }
           

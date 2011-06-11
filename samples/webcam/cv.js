@@ -7,19 +7,23 @@ CV.Image = function(width, height, data){
   this.data = data || [];
 };
 
-CV.grayscale = function(imageSrc){
-  var src = imageSrc.data, len = src.length, dst = [], i = 0, j = 0;
+CV.grayscale = function(imageSrc, imageDst){
+  var src = imageSrc.data, dst = imageDst.data, len = src.length,
+      i = 0, j = 0;
 
   for (; i !== len; i += 4){
     dst[j ++] =
       (src[i] * 0.299 + src[i + 1] * 0.587 + src[i + 2] * 0.114 + 0.5) & 0xff;
   }
   
-  return new CV.Image(imageSrc.width, imageSrc.height, dst);
+  imageDst.width = imageSrc.width;
+  imageDst.height = imageSrc.height;
+  
+  return imageDst;
 };
 
-CV.threshold = function(imageSrc, threshold){
-  var src = imageSrc.data, dst = [], tab = [], i;
+CV.threshold = function(imageSrc, imageDst, threshold){
+  var src = imageSrc.data, dst = imageDst.data, tab = [], i;
 
   i = 256;
   while(i --){
@@ -31,14 +35,17 @@ CV.threshold = function(imageSrc, threshold){
     dst[i] = tab[ src[i] ];
   }
 
-  return new CV.Image(imageSrc.width, imageSrc.height, dst);
+  imageDst.width = imageSrc.width;
+  imageDst.height = imageSrc.height;
+
+  return imageDst;
 };
 
-CV.adaptiveThreshold = function(imageSrc, kernelSize, threshold){
-  var src = imageSrc.data, len = src.length, dst = [], tab = [],
+CV.adaptiveThreshold = function(imageSrc, imageDst, imageMean, kernelSize, threshold){
+  var src = imageSrc.data, dst = imageDst.data, len = src.length, tab = [],
       mean, i;
 
-  mean = CV.gaussianBlur(imageSrc, kernelSize).data;
+  mean = CV.gaussianBlur(imageSrc, imageDst, imageMean, kernelSize).data;
 
   i = 768;
   while(i --){
@@ -50,7 +57,10 @@ CV.adaptiveThreshold = function(imageSrc, kernelSize, threshold){
     dst[i] = tab[ src[i] - mean[i] + 255 ];
   }
 
-  return new CV.Image(imageSrc.width, imageSrc.height, dst);
+  imageDst.width = imageSrc.width;
+  imageDst.height = imageSrc.height;
+  
+  return imageDst;
 };
 
 CV.otsu = function(imageSrc){
@@ -99,10 +109,14 @@ CV.otsu = function(imageSrc){
   return threshold;
 };
 
-CV.gaussianBlur = function(imageSrc, kernelSize){
-  var imageMean = new CV.Image(imageSrc.width, imageSrc.height),
-      imageDst = new CV.Image(imageSrc.width, imageSrc.height),
-      kernel = CV.gaussianKernel(kernelSize);
+CV.gaussianBlur = function(imageSrc, imageDst, imageMean, kernelSize){
+  var kernel = CV.gaussianKernel(kernelSize);
+
+  imageDst.width = imageSrc.width;
+  imageDst.height = imageSrc.height;
+  
+  imageMean.width = imageSrc.width;
+  imageMean.height = imageSrc.height;
 
   CV.gaussianBlurFilter(imageSrc, imageMean, kernel, true);
   CV.gaussianBlurFilter(imageMean, imageDst, kernel, false);
@@ -386,9 +400,9 @@ CV.approxPolyDP = function(contour, epsilon){
   return poly;
 };
 
-CV.warp = function(imageSrc, contour, warpSize){
+CV.warp = function(imageSrc, imageDst, contour, warpSize){
   var src = imageSrc.data, width = imageSrc.width,
-      dst = [], square = [], pos = 0,
+      dst = imageDst.data, square = [], pos = 0,
       m, d, x, y, i, j;
   
   square[0] = {x: 0, y: 0};
@@ -410,7 +424,10 @@ CV.warp = function(imageSrc, contour, warpSize){
     }
   }
 
-  return new CV.Image(warpSize, warpSize, dst);
+  imageDst.width = warpSize;
+  imageDst.height = warpSize;
+
+  return imageDst;
 };
 
 CV.getPerspectiveTransform = function(src, dst){
