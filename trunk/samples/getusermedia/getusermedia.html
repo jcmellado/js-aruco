@@ -1,0 +1,113 @@
+<html>
+
+<head>
+  <title>AR Marker Detector</title>
+
+  <script type="text/javascript" src="cv.js"></script> 
+  <script type="text/javascript" src="aruco.js"></script> 
+
+  <script>
+    var video, canvas, context, imageData, detector;
+  
+    function onLoad(){
+      video = document.getElementById("video");
+      canvas = document.getElementById("canvas");
+      context = canvas.getContext("2d");
+    
+      if (navigator.getUserMedia){
+        navigator.getUserMedia("video", successCallback, errorCallback);
+        
+        function successCallback(stream){
+          video.src = stream;
+        }
+        function errorCallback(error){
+        }
+      }
+      
+      detector = new AR.Detector();
+
+      setTimeout(tick, 1);
+    }
+    
+    function tick(){
+      snapshot();
+
+      var markers = detector.detect(imageData);
+      drawCorners(markers);
+      drawId(markers);
+
+      setTimeout(tick, 1);
+    }
+
+    function snapshot(){
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      
+      context.drawImage(video, 0, 0);
+      imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    }
+          
+    function drawCorners(markers){
+      var corners, corner, i, j;
+    
+      context.lineWidth = 3;
+
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        context.strokeStyle = "red";
+        context.beginPath();
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          context.moveTo(corner.x, corner.y);
+          corner = corners[(j + 1) % corners.length];
+          context.lineTo(corner.x, corner.y);
+        }
+
+        context.stroke();
+        context.closePath();
+        
+        context.strokeStyle = "green";
+        context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+      }
+    }
+
+    function drawId(markers){
+      var corners, corner, x, y, i, j;
+      
+      context.strokeStyle = "blue";
+      context.lineWidth = 1;
+      
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        x = Infinity;
+        y = Infinity;
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          
+          x = Math.min(x, corner.x);
+          y = Math.min(y, corner.y);
+        }
+
+        context.strokeText(markers[i].id, x, y)
+      }
+    }
+
+    window.onload = onLoad;
+  </script>
+
+</head>
+
+<body>
+
+  <center>
+        <video id="video" style="display:none" autoplay="true"></video>
+        <canvas id="canvas"></canvas>
+  </center>
+
+</body>
+  
+</html>
