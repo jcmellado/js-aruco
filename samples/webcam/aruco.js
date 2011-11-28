@@ -11,29 +11,36 @@ AR.Detector = function(){
   this.thres = new CV.Image();
   this.mean = new CV.Image();
   this.homography = new CV.Image();
+  this.contours = [];
+  this.polys = [];
+  this.candidates = [];
 };
 
 AR.Detector.prototype.detect = function(image){
   CV.grayscale(image, this.grey);
   CV.adaptiveThreshold(this.grey, this.thres, this.mean, 7, 7);
   
-  var contours = CV.findContours(this.thres);
+  this.contours = CV.findContours(this.thres);
 
-  var candidates = this.findCandidates(contours, image.width * 0.20, 0.05, 10);
-  candidates = this.clockwiseCorners(candidates);
-  candidates = this.notTooNear(candidates, 10);
+  this.candidates = this.findCandidates(this.contours, image.width * 0.20, 0.05, 10);
+  this.candidates = this.clockwiseCorners(this.candidates);
+  this.candidates = this.notTooNear(this.candidates, 10);
 
-  return this.findMarkers(this.grey, candidates, 49);
+  return this.findMarkers(this.grey, this.candidates, 49);
 };
 
 AR.Detector.prototype.findCandidates = function(contours, minSize, epsilon, minLength){
   var candidates = [], contour, poly, i;
 
+  this.polys = [];
+  
   for (i = 0; i !== contours.length; ++ i){
     contour = contours[i];
 
     if (contour.length >= minSize){
       poly = CV.approxPolyDP(contour, contour.length * epsilon);
+
+      this.polys.push(poly);
 
       if ( (poly.length === 4) && ( CV.isContourConvex(poly) ) ){
 
@@ -106,11 +113,11 @@ AR.Detector.prototype.findMarkers = function(imageSrc, candidates, warpSize){
 
   for (i = 0; i !== candidates.length; ++ i){
     candidate = candidates[i];
-  
+
     CV.warp(imageSrc, this.homography, candidate, warpSize);
   
     CV.threshold(this.homography, this.homography, CV.otsu(this.homography) );
-    
+
     marker = this.getMarker(this.homography, candidate);
     if (marker){
       markers.push(marker);

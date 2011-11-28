@@ -1,0 +1,202 @@
+<html>
+
+<head>
+  <title>AR Marker Detector</title>
+
+  <script type="text/javascript" src="cv.js"></script> 
+  <script type="text/javascript" src="aruco.js"></script> 
+
+  <script>
+    var camera, canvas, context, imageData, pixels, detector;
+    var debugImage, warpImage, homographyImage;
+
+    function cameraUnmuted(){
+      camera = document.getElementById("flashcam");
+      canvas = document.getElementById("canvas");
+      context = canvas.getContext("2d");
+      imageData = context.getImageData(0, 0, parseInt(camera.width), parseInt(camera.height) );
+      pixels = [];
+      detector = new AR.Detector();
+      
+      debugImage = context.createImageData( parseInt(camera.width), parseInt(camera.height) );
+      warpImage = context.createImageData(49, 49);
+      homographyImage = new CV.Image();
+      
+      camera.style.visibility = "hidden";
+      canvas.style.display = "block";
+
+      setTimeout(tick, 1);
+    }
+
+    function tick(){
+      snapshot();
+
+      var markers = detector.detect(imageData);
+      drawDebug();
+      drawCorners(markers);
+      drawId(markers);
+
+      setTimeout(tick, 1);
+    }
+
+    function snapshot(){
+      var image = imageData.data,
+          i = 0, j = 0, curr = 0, len;
+
+      pixels = camera.snapshot().split(",");
+
+      len = pixels.length - 1;
+      while(len --){
+        curr += parseInt( pixels[j ++], 36);
+
+        image[i ++] = curr >> 16;
+        image[i ++] = (curr >> 8) & 0xff;
+        image[i ++] = curr & 0xff;
+        image[i ++] = 255;
+      }
+    }
+          
+    function drawDebug(){
+      var width = parseInt(camera.width), height = parseInt(camera.height);
+      
+      context.clearRect(0, 0, parseInt(canvas.width), parseInt(canvas.height) );
+      
+      context.putImageData(imageData, 0, 0);
+      context.putImageData( createImage(detector.grey, debugImage), width, 0);
+      context.putImageData( createImage(detector.thres, debugImage), width * 2, 0);
+      
+      drawContours(detector.contours, 0, height, width, height, function(hole) {return hole? "magenta": "blue";});
+      drawContours(detector.polys, width, height, width, height, function() {return "green";} );
+      drawContours(detector.candidates, width * 2, height, width, height, function() {return "red";} );
+      
+      drawWarps(detector.grey, detector.candidates, 0, height * 2 + 20);
+    }
+    
+    function drawContours(contours, x, y, width, height, fn){
+      var i = contours.length, j, contour, point;
+      
+      while(i --){
+        contour = contours[i];
+
+        context.strokeStyle = fn(contour.hole);
+        context.beginPath();
+
+        for (j = 0; j < contour.length; ++ j){
+          point = contour[j];
+          this.context.moveTo(x + point.x, y + point.y);
+          point = contour[(j + 1) % contour.length];
+          this.context.lineTo(x + point.x, y + point.y);
+        }
+        
+        context.stroke();
+        context.closePath();
+      }
+    }
+    
+    function drawWarps(imageSrc, contours, x, y){
+      var i = contours.length, j, contour;
+      
+      var offset = ( parseInt(canvas.width) - ( (warpImage.width + 10) * contours.length) ) / 2
+      while(i --){
+        contour = contours[i];
+        
+        CV.warp(imageSrc, homographyImage, contour, warpImage.width);
+        this.context.putImageData( createImage(homographyImage, warpImage), offset + i * (warpImage.width + 10), y);
+        
+        CV.threshold(homographyImage, homographyImage, CV.otsu(homographyImage) );
+        this.context.putImageData( createImage(homographyImage, warpImage), offset + i * (warpImage.width + 10), y + 60);
+      }
+    }
+    
+    function drawCorners(markers){
+      var corners, corner, i, j;
+    
+      context.lineWidth = 3;
+
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        context.strokeStyle = "red";
+        context.beginPath();
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          context.moveTo(corner.x, corner.y);
+          corner = corners[(j + 1) % corners.length];
+          context.lineTo(corner.x, corner.y);
+        }
+
+        context.stroke();
+        context.closePath();
+        
+        context.strokeStyle = "green";
+        context.strokeRect(corners[0].x - 2, corners[0].y - 2, 4, 4);
+      }
+    }
+
+    function drawId(markers){
+      var corners, corner, x, y, i, j;
+      
+      context.strokeStyle = "blue";
+      context.lineWidth = 1;
+      
+      for (i = 0; i !== markers.length; ++ i){
+        corners = markers[i].corners;
+        
+        x = Infinity;
+        y = Infinity;
+        
+        for (j = 0; j !== corners.length; ++ j){
+          corner = corners[j];
+          
+          x = Math.min(x, corner.x);
+          y = Math.min(y, corner.y);
+        }
+
+        context.strokeText(markers[i].id, x, y)
+      }
+    }
+
+    function createImage(src, dst){
+      var i = src.data.length, j = (i * 4) + 3;
+      
+      while(i --){
+        dst.data[j -= 4] = 255;
+        dst.data[j - 1] = dst.data[j - 2] = dst.data[j - 3] = src.data[i];
+      }
+      
+      return dst;
+    };
+
+  </script>
+
+</head>
+
+<body>
+
+  <center>
+    <div>
+      <canvas id="canvas" width="960px" height="620px" style="display:none;"></canvas>
+    </div>
+    <div>
+      <object id="flash"
+              width="320" height="240"
+              classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">
+        <param name="movie" value="flashcam.swf"/>
+        <param name="quality" value="high"/>
+        <param name="allowScriptAccess" value="always"/>
+        <embed id="flashcam"
+               src="flashcam.swf"
+               width="320" height="240"
+               quality="high" 
+               allowScriptAccess="always" 
+               type="application/x-shockwave-flash"
+               pluginspage="http://www.macromedia.com/go/getflashplayer"/>
+      </object>
+    </div>
+  </center>
+
+</body>
+  
+</html>
