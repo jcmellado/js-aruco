@@ -14,19 +14,28 @@
       canvas = document.getElementById("canvas");
       context = canvas.getContext("2d");
     
+      canvas.width = parseInt(canvas.style.width);
+      canvas.height = parseInt(canvas.style.height);
+      
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
       if (navigator.getUserMedia){
         navigator.getUserMedia("video", successCallback, errorCallback);
         
         function successCallback(stream){
-          video.src = stream;
+          if (window.webkitURL) {
+            video.src = window.webkitURL.createObjectURL(stream);
+          } else {
+            video.src = stream;
+          }
         }
+        
         function errorCallback(error){
         }
-      }
-      
-      detector = new AR.Detector();
+        
+        detector = new AR.Detector();
 
-      setTimeout(tick, 1);
+        setTimeout(tick, 1);
+      }
     }
     
     function tick(){
@@ -40,10 +49,7 @@
     }
 
     function snapshot(){
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
-      context.drawImage(video, 0, 0);
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
       imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     }
           
@@ -104,8 +110,8 @@
 <body>
 
   <center>
-        <video id="video" style="display:none" autoplay="true"></video>
-        <canvas id="canvas"></canvas>
+    <video id="video" autoplay="true" style="display:none;"></video>
+    <canvas id="canvas" style="width:640px; height:480px;"></canvas>
   </center>
 
 </body>
