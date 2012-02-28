@@ -10,22 +10,42 @@
     var camera, canvas, context, imageData, pixels, detector;
     var debugImage, warpImage, homographyImage;
 
-    function cameraUnmuted(){
-      camera = document.getElementById("flashcam");
+    function onLoad(){
+      camera = document.getElementById("video");
       canvas = document.getElementById("canvas");
       context = canvas.getContext("2d");
-      imageData = context.getImageData(0, 0, parseInt(camera.width), parseInt(camera.height) );
-      pixels = [];
-      detector = new AR.Detector();
       
-      debugImage = context.createImageData( parseInt(camera.width), parseInt(camera.height) );
-      warpImage = context.createImageData(49, 49);
-      homographyImage = new CV.Image();
+      camera.width = 320;
+      camera.height = 240;
       
-      camera.style.visibility = "hidden";
-      canvas.style.display = "block";
-
-      setTimeout(tick, 1);
+      canvas.width = parseInt(canvas.style.width);
+      canvas.height = parseInt(canvas.style.height);
+      
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+      if (navigator.getUserMedia){
+        navigator.getUserMedia("video", successCallback, errorCallback);
+        
+        function successCallback(stream){
+          if (window.webkitURL) {
+            video.src = window.webkitURL.createObjectURL(stream);
+          } else {
+            video.src = stream;
+          }
+        }
+        
+        function errorCallback(error){
+        }
+      
+        imageData = context.getImageData(0, 0, camera.width, camera.height);
+        pixels = [];
+        detector = new AR.Detector();
+        
+        debugImage = context.createImageData(camera.width, camera.height);
+        warpImage = context.createImageData(49, 49);
+        homographyImage = new CV.Image();
+        
+        setTimeout(tick, 1);
+      }
     }
 
     function tick(){
@@ -40,26 +60,14 @@
     }
 
     function snapshot(){
-      var image = imageData.data,
-          i = 0, j = 0, curr = 0, len;
-
-      pixels = camera.snapshot().split(",");
-
-      len = pixels.length - 1;
-      while(len --){
-        curr += parseInt( pixels[j ++], 36);
-
-        image[i ++] = curr >> 16;
-        image[i ++] = (curr >> 8) & 0xff;
-        image[i ++] = curr & 0xff;
-        image[i ++] = 255;
-      }
+      context.drawImage(video, 0, 0, camera.width, camera.height);
+      imageData = context.getImageData(0, 0, camera.width, camera.height);
     }
           
     function drawDebug(){
-      var width = parseInt(camera.width), height = parseInt(camera.height);
+      var width = camera.width, height = camera.height;
       
-      context.clearRect(0, 0, parseInt(canvas.width), parseInt(canvas.height) );
+      context.clearRect(0, 0, canvas.width, canvas.height);
       
       context.putImageData(imageData, 0, 0);
       context.putImageData( createImage(detector.grey, debugImage), width, 0);
@@ -96,7 +104,7 @@
     function drawWarps(imageSrc, contours, x, y){
       var i = contours.length, j, contour;
       
-      var offset = ( parseInt(canvas.width) - ( (warpImage.width + 10) * contours.length) ) / 2
+      var offset = ( canvas.width - ( (warpImage.width + 10) * contours.length) ) / 2
       while(i --){
         contour = contours[i];
         
@@ -168,6 +176,8 @@
       return dst;
     };
 
+  window.onload = onLoad;
+
   </script>
 
 </head>
@@ -175,26 +185,8 @@
 <body>
 
   <center>
-    <div>
-      <canvas id="canvas" width="960px" height="620px" style="display:none;"></canvas>
-    </div>
-    <div>
-      <object id="flash"
-              width="320" height="240"
-              classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
-              codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0">
-        <param name="movie" value="flashcam.swf"/>
-        <param name="quality" value="high"/>
-        <param name="allowScriptAccess" value="always"/>
-        <embed id="flashcam"
-               src="flashcam.swf"
-               width="320" height="240"
-               quality="high" 
-               allowScriptAccess="always" 
-               type="application/x-shockwave-flash"
-               pluginspage="http://www.macromedia.com/go/getflashplayer"/>
-      </object>
-    </div>
+    <video id="video" autoplay="true" style="width:320px; height:240px; display:none;"></video>
+    <canvas id="canvas" style="width:960px; height:620px;"></canvas>
   </center>
 
 </body>
