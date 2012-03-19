@@ -1,8 +1,10 @@
 <html>
 
 <head>
-  <title>AR Marker Detector</title>
+  <title>Augmented Reality Marker Detector</title>
 
+  <script type="text/javascript" src="libs/polyfill.js"></script> 
+  
   <script type="text/javascript" src="cv.js"></script> 
   <script type="text/javascript" src="aruco.js"></script> 
 
@@ -44,19 +46,21 @@
         warpImage = context.createImageData(49, 49);
         homographyImage = new CV.Image();
         
-        setTimeout(tick, 1);
+        requestAnimationFrame(tick);
       }
     }
 
     function tick(){
-      snapshot();
+      requestAnimationFrame(tick);
+      
+      if (video.readyState === video.HAVE_ENOUGH_DATA){
+        snapshot();
 
-      var markers = detector.detect(imageData);
-      drawDebug();
-      drawCorners(markers);
-      drawId(markers);
-
-      setTimeout(tick, 1);
+        var markers = detector.detect(imageData);
+        drawDebug();
+        drawCorners(markers);
+        drawId(markers);
+      }
     }
 
     function snapshot(){
@@ -182,11 +186,13 @@
 
 </head>
 
-<body>
+<body style="font-family: monospace;">
 
   <center>
+    <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div>
     <video id="video" autoplay="true" style="width:320px; height:240px; display:none;"></video>
     <canvas id="canvas" style="width:960px; height:620px;"></canvas>
+    <div style="margin: 15px;"><strong>Powered by <a href="http://code.google.com/p/js-aruco/">js-aruco</a></strong></div>
   </center>
 
 </body>
