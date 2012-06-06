@@ -25,7 +25,7 @@
       
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
       if (navigator.getUserMedia){
-        navigator.getUserMedia("video", successCallback, errorCallback);
+        navigator.getUserMedia({video:true}, successCallback, errorCallback);
         
         function successCallback(stream){
           if (window.webkitURL) {
