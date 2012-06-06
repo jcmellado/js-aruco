@@ -35,7 +35,7 @@
     };
     
     function init(){
-      navigator.getUserMedia("video", 
+      navigator.getUserMedia({video:true}, 
         function (stream){
           if (window.webkitURL) {
             video.src = window.webkitURL.createObjectURL(stream);
