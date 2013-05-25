@@ -19,13 +19,14 @@
       canvas.width = parseInt(canvas.style.width);
       canvas.height = parseInt(canvas.style.height);
       
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
       if (navigator.getUserMedia){
-        navigator.getUserMedia({video: true}, successCallback, errorCallback);
         
         function successCallback(stream){
           if (window.webkitURL) {
             video.src = window.webkitURL.createObjectURL(stream);
+          } else if (video.mozSrcObject !== undefined) {
+            video.mozSrcObject = stream;
           } else {
             video.src = stream;
           }
@@ -33,6 +34,8 @@
         
         function errorCallback(error){
         }
+        
+        navigator.getUserMedia({video: true}, successCallback, errorCallback);
         
         detector = new AR.Detector();
 
