@@ -105,7 +105,7 @@
 
     function createRenderers(){
       renderer1 = new THREE.WebGLRenderer();
-      renderer1.setClearColorHex(0xffff00, 1);
+      renderer1.setClearColor(0xffff00, 1);
       renderer1.setSize(canvas.width, canvas.height);
       document.getElementById("container1").appendChild(renderer1.domElement);
       scene1 = new THREE.Scene();
@@ -113,7 +113,7 @@
       scene1.add(camera1);
 
       renderer2 = new THREE.WebGLRenderer();
-      renderer2.setClearColorHex(0xffff00, 1);
+      renderer2.setClearColor(0xffff00, 1);
       renderer2.setSize(canvas.width, canvas.height);
       document.getElementById("container2").appendChild(renderer2.domElement);
       scene2 = new THREE.Scene();
@@ -121,7 +121,7 @@
       scene2.add(camera2);
 
       renderer3 = new THREE.WebGLRenderer();
-      renderer3.setClearColorHex(0xffffff, 1);
+      renderer3.setClearColor(0xffffff, 1);
       renderer3.setSize(canvas.width, canvas.height);
       document.getElementById("container").appendChild(renderer3.domElement);
       
