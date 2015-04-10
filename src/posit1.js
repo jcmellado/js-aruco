@@ -280,7 +280,7 @@ POS.Posit.prototype.iterate = function(imagePoints, posRotation, posTranslation,
        rotation[i][2] * this.objectPoints[0][2]);
   }
   
-  error1 = this.error(imagePoints, rotation, translation1);
+  error = error1 = this.error(imagePoints, rotation, translation1);
 
   //Convergence
   converged = (0.0 === error1.pixels) || (imageDifference < 0.01);
