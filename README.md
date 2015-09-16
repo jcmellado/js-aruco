@@ -6,19 +6,19 @@
 
 100% JavaScript (see details bellow):
 
-- [Webcam live demo!](http://inmensia.com/files/aruco/getusermedia/getusermedia.html)
+- [Webcam live demo!](https://jcmellado.github.io/js-aruco/getusermedia/getusermedia.html)
 
 3D Pose Estimation:
 
-- [3D Earth!](http://inmensia.com/files/aruco/debug-posit/debug-posit.html)
+- [3D Earth!](https://jcmellado.github.io/js-aruco/debug-posit/debug-posit.html)
 
 Visual Debugging:
 
-- [Debug session jam!](http://inmensia.com/files/aruco/debug/debug.html)
+- [Debug session jam!](https://jcmellado.github.io/js-aruco/debug/debug.html)
 
 Flash camera access (see details bellow):
 
-- [Webcam live demo!](http://inmensia.com/files/aruco/webcam/webcam.html)
+- [Webcam live demo!](https://jcmellado.github.io/js-aruco/webcam/webcam.html)
 
 ### Videos ###
 
@@ -127,4 +127,4 @@ To test 100% JavaScript demos use a modern browser like Chrome or Firefox.
 
 ### Flash Demo (deprecated) ###
 
-It uses [Flashcam](http://code.google.com/p/flashcam/), a minimal Flash library to capture video.
+It uses [Flashcam](https://github.com/jcmellado/flashcam), a minimal Flash library to capture video.
