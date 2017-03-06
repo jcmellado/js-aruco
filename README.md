@@ -121,10 +121,6 @@ for (var i = 0; i < corners.length; ++ i){
 
 Note: POS namespace can be taken from posit1.js or posit2.js.
 
-### WebCam Access ###
-
-To test 100% JavaScript demos use a modern browser like Chrome or Firefox.
-
 ### Flash Demo (deprecated) ###
 
 It uses [Flashcam](https://github.com/jcmellado/flashcam), a minimal Flash library to capture video.
