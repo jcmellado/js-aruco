@@ -1,0 +1,23 @@
+{
+  "name": "js-aruco",
+  "version": "1.0.0",
+  "description": "JavaScript library for Augmented Reality applications",
+  "main": "src/aruco.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shamansir/js-aruco.git"
+  },
+  "keywords": [
+    "aruco",
+    "cv"
+  ],
+  "author": "Juan Mellado",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcmellado/js-aruco/issues"
+  },
+  "homepage": " http://www.uco.es/investiga/grupos/ava/node/26"
+}
