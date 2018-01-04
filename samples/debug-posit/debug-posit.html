@@ -167,6 +167,8 @@
           material = new THREE.MeshNormalMaterial(),
           mesh = new THREE.Mesh(geometry, material);
       
+      object.eulerOrder = 'YXZ';
+      
       object.add(mesh);
       
       return object;
