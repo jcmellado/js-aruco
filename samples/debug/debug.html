@@ -23,34 +23,47 @@
       canvas.width = parseInt(canvas.style.width);
       canvas.height = parseInt(canvas.style.height);
       
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-      if (navigator.getUserMedia){
-        
-        function successCallback(stream){
-          if (window.webkitURL) {
-            video.src = window.webkitURL.createObjectURL(stream);
-          } else if (video.mozSrcObject !== undefined) {
-            video.mozSrcObject = stream;
-          } else {
-            video.src = stream;
-          }
-        }
-        
-        function errorCallback(error){
-        }
-      
-        navigator.getUserMedia({video:true}, successCallback, errorCallback);
-        
-        imageData = context.getImageData(0, 0, camera.width, camera.height);
-        pixels = [];
-        detector = new AR.Detector();
-        
-        debugImage = context.createImageData(camera.width, camera.height);
-        warpImage = context.createImageData(49, 49);
-        homographyImage = new CV.Image();
-        
-        requestAnimationFrame(tick);
+      if (navigator.mediaDevices === undefined) {
+        navigator.mediaDevices = {};
       }
+      
+      if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = function(constraints) {
+          var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+          
+          if (!getUserMedia) {
+            return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+          }
+
+          return new Promise(function(resolve, reject) {
+            getUserMedia.call(navigator, constraints, resolve, reject);
+          });
+        }
+      }
+      
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then(function(stream) {
+          if ("srcObject" in video) {
+            video.srcObject = stream;
+          } else {
+            video.src = window.URL.createObjectURL(stream);
+          }
+        })
+        .catch(function(err) {
+          console.log(err.name + ": " + err.message);
+        }
+      );
+        
+      imageData = context.getImageData(0, 0, camera.width, camera.height);
+      pixels = [];
+      detector = new AR.Detector();
+      
+      debugImage = context.createImageData(camera.width, camera.height);
+      warpImage = context.createImageData(49, 49);
+      homographyImage = new CV.Image();
+      
+      requestAnimationFrame(tick);
     }
 
     function tick(){
