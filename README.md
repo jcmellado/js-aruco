@@ -6,33 +6,23 @@
 
 100% JavaScript (see details bellow):
 
-- [Webcam live demo!](https://jcmellado.github.io/js-aruco/getusermedia/getusermedia.html)
+- [Webcam live demo!](https://jcmellado.github.io/showcase/js/js-aruco/getusermedia/index.html)
 
 3D Pose Estimation:
 
-- [3D Earth!](https://jcmellado.github.io/js-aruco/debug-posit/debug-posit.html)
+- [3D Earth!](https://jcmellado.github.io/showcase/js/js-aruco/debug-posit/index.html)
 
 Visual Debugging:
 
-- [Debug session jam!](https://jcmellado.github.io/js-aruco/debug/debug.html)
-
-Flash camera access (see details bellow):
-
-- [Webcam live demo!](https://jcmellado.github.io/js-aruco/webcam/webcam.html)
+- [Debug session jam!](https://jcmellado.github.io/showcase/js/js-aruco/debug/index.html)
 
 ### Videos ###
 
-Webcam video adquisition:
+[Webcam video adquisition](https://jcmellado.github.io/showcase/videos/js-aruco_%20Augmented%20Reality%20on%20JavaScript.mp4)
 
-[![js-aruco](http://img.youtube.com/vi/_wzPupbww4I/0.jpg)](http://www.youtube.com/watch?v=_wzPupbww4I)
+[3D Pose estimation](https://jcmellado.github.io/showcase/videos/js-aruco_%20Coplanar%20POSIT.mp4)
 
-3D Pose estimation:
-
-[![js-aruco](http://img.youtube.com/vi/9WD4wR3_-JM/0.jpg)](http://www.youtube.com/watch?v=9WD4wR3_-JM)
-
-Visual Debugging:
-
-[![js-aruco](http://img.youtube.com/vi/xvTMRdgySUQ/0.jpg)](http://www.youtube.com/watch?v=xvTMRdgySUQ)
+[Visual Debugging](https://jcmellado.github.io/showcase/videos/js-aruco_%20Debugging%20Augmented%20Reality%20with%20JavaScript.mp4)
 
 ### Markers ###
 
@@ -50,7 +40,7 @@ Each row must follow any of the following patterns:
 
 Example:
 
-![Marker](http://www.inmensia.com/files/pictures/external/1001.png)
+![Marker](https://jcmellado.github.io/showcase/img/marker-1001.png)
 
 ### Usage ###
 Create an `AR.Detector` object:
